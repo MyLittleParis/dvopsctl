@@ -1,4 +1,4 @@
-package server
+package cmd
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 
 var envFiles = []string{".env", ".docker/.env"}
 
-func Open() {
+func ServerOpen() {
     servername := searchInEnvFile("SERVER_NAME")
     if value, found := strings.CutPrefix(servername, "${COMPOSE_PROJECT_NAME}"); found {
         project := searchInEnvFile("COMPOSE_PROJECT_NAME")
