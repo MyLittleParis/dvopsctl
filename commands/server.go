@@ -2,16 +2,20 @@ package cmd
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
-    "github.com/MyLittleParis/dvopsctl/utils"
-    "github.com/pkg/browser"
+
+	"github.com/MyLittleParis/dvopsctl/utils"
+	"github.com/pkg/browser"
 )
+
+const noEnv = "no env file"
 
 var envFiles = []string{".env", ".docker/.env"}
 
-func ServerOpen() {
+func ServerOpen() (int, error) {
     servername := searchInEnvFile("SERVER_NAME")
     if value, found := strings.CutPrefix(servername, "${COMPOSE_PROJECT_NAME}"); found {
         project := searchInEnvFile("COMPOSE_PROJECT_NAME")
@@ -22,15 +26,17 @@ func ServerOpen() {
         url := "https://" + servername
 
         fmt.Println("Opening " + url)
-        browser.OpenURL(url)
+        if servername != "dvopsctl.docker.localhost" {
+            browser.OpenURL(url)
+        }
 
-        os.Exit(0)
+        return 0, nil
     }
 
     fmt.Println("No SERVER_NAME found in .env or .docker/.env files.")
     fmt.Println("Or no env file found.")
 
-    os.Exit(0)
+    return -1, errors.New(noEnv)
 }
 
 func searchInEnvFile(envVar string) string {
