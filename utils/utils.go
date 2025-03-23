@@ -6,6 +6,7 @@ import (
     "io"
     "log"
     "os"
+    "os/exec"
     "path/filepath"
     "runtime"
     "strings"
@@ -41,6 +42,58 @@ func RemoveQuote(s string) string {
     s = strings.ReplaceAll(s, "\"", "")
     s = strings.ReplaceAll(s, "'", "")
     return s
+}
+
+// Git functions
+func GitClone(repository string) {
+    git := exec.Command("git", "clone", repository)
+    err := git.Start()
+
+    log.Printf("git clone %s", repository)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = git.Wait()
+
+    if err != nil {
+        log.Printf("Command finished with error: %v", err)
+    }
+}
+
+func GitPull() {
+    git := exec.Command("git", "pull")
+    err := git.Start()
+
+    log.Printf("git pull")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = git.Wait()
+
+    if err != nil {
+        log.Printf("Command finished with error: %v", err)
+    }
+}
+
+func GitCheckout(branch string) {
+    git := exec.Command("git", "checkout", branch)
+    err := git.Start()
+
+    log.Printf("git checkout %s", branch)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = git.Wait()
+
+    if err != nil {
+        log.Printf("Command finished with error: %v", err)
+    }
 }
 
 // Others utils functions
