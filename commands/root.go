@@ -23,9 +23,22 @@ func Run(args []string) (int, error) {
         fmt.Println("")
     }
 
+    dockerCmd := flag.NewFlagSet("docker", flag.ExitOnError)
+    // subcommands
+    dockerBuild := dockerCmd.Bool("build", false, "Build parent docker image in local")
+    // args
+    dockerPath := dockerCmd.String("path", "", "Path to docker file")
+
+    dockerCmd.Usage = func() {
+        fmt.Println("docker [options]")
+        dockerCmd.PrintDefaults()
+        fmt.Println("")
+    }
+
     // Commands list to use it in usage function
     commands := []*flag.FlagSet{
-            serverCmd,
+        dockerCmd,
+        serverCmd,
     }
 
     var usage func()
@@ -49,10 +62,15 @@ func Run(args []string) (int, error) {
         if *serverOpen {
             errCode, rootError = ServerOpen()
         }
-        default: 
-            fmt.Println("Unknown command: " + args[1])
-            usage()
-            return -1, errors.New(unknownCmd)
+    case "docker":
+        dockerCmd.Parse(args[2:])
+        if *dockerBuild {
+            BuildParentImage(*dockerPath)
+        }
+    default:
+        fmt.Println("Unknown command: " + args[1])
+        usage()
+        return -1, errors.New(unknownCmd)
     }
     
     return errCode, rootError
